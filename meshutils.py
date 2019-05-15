@@ -98,7 +98,7 @@ def dolfin2vtk(mesh, u = None) :
                     for i in xrange(0, gdim) ])
         pts = V.dofmap().tabulate_all_coordinates(mesh).reshape(-1, gdim)
         #pts = V.tabulate_dof_coordinates().reshape(-1, gdim)
-   	pts = pts[idx[:, 0], :] + u.vector().array()[idx]
+        pts = pts[idx[:, 0], :] + u.vector().array()[idx]
         # always 3d coordinates
         pts = np.column_stack([pts, np.zeros((pts.shape[0], 3-gdim))]) 
         pts = array2vtkPoints(pts)

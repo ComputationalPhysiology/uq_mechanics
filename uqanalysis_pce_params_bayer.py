@@ -5,9 +5,9 @@
 
 if __name__ == "__main__":
 	from dolfin import *
-        import numpy  as np
+    import numpy  as np
 	import chaospy as cp
-        import pandas as pd
+    import pandas as pd
 
 	from ProblemSettings import *
 

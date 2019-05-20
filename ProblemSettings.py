@@ -1,7 +1,7 @@
 from dolfin import *
 import numpy as np
 from MatStrainEnergyFunction2 import *
-from fiberrules import *
+from dolfinfiberrules import *
 from meshutils import *
 
 parameters.allow_extrapolation = True

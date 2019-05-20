@@ -29,15 +29,17 @@ fiber_rotation_end_dist = cp.Normal(mu = 40,sigma = 6.0)                 #deg
 sheet_rotation_epi_dist = cp.Normal(mu = 65,sigma = 9.75)                #deg
 sheet_rotation_end_dist = cp.Normal(mu = 25,sigma = 3.75)                #deg
 
-
+print('Calling Chaospy')
 
 # Define Joint probability density funtion
 #joint = cp.J(b_ff_dist,b_xx_dist,b_fx_dist,CC_dist,K_dist,fiber_rotation_epi_dist)
 joint = cp.J(b_ff_dist,b_xx_dist,b_fx_dist,CC_dist,K_dist,fiber_rotation_epi_dist,fiber_rotation_end_dist,sheet_rotation_epi_dist,sheet_rotation_end_dist)
 
 
+print('done with Chaospy')
+
 # Monte Carlo	
-nsamples = 50
+nsamples = 5
 qmc_scheme = "H"
 samples= joint.sample(nsamples, rule=qmc_scheme)
 	

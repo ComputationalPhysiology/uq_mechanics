@@ -1,0 +1,1 @@
+/usr/bin/c++  -fPIC  -ansi  -fopenmp -O2 -g -DNDEBUG    -shared -Wl,-soname,libfiberrules.so.0.1 -o libfiberrules.so.0.1.0 CMakeFiles/fiberrules.dir/carptools.cpp.o CMakeFiles/fiberrules.dir/fiberrulestools.cpp.o 

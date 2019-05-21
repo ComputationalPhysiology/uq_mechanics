@@ -1,8 +1,8 @@
-### Code for uncertainty quantification in cardiac mechanics, based on Chaospy and a simplified version of Pulse
+##Code for uncertainty quantification in cardiac mechanics, based on Chaospy and a simplified version of Pulse
 
-## References:
+### References:
 
-## Status:
+### Status:
 In development, being updated from Python 2 to Python3. Code is currently not fully functional.
 Mostly working, but not well tested:
 * UQ with simple scalar parameters, both PCE and MC

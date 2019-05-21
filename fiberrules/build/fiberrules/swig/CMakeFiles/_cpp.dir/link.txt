@@ -1,1 +1,0 @@
-/usr/bin/c++  -fPIC  -ansi  -fopenmp -O2 -g -DNDEBUG   -shared -Wl,-soname,_cpp.so -o _cpp.so CMakeFiles/_cpp.dir/fiberrulesPYTHON_wrap.cxx.o ../libfiberrules.so.0.1.0 -lpython2.7 -Wl,-rpath,/home/rocio/Desktop/fiberrules/build/fiberrules 

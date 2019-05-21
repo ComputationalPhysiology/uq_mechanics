@@ -22,6 +22,7 @@ def boundary_mesh(mesh, bfun, marker = None, u = None) :
         facets = np.where(bfun.array() != 0)[0]
     mesh.init(2, 0)
     conn = np.array(map(mesh.topology()(2, 0), facets))
+    
     points = np.unique(conn.ravel())
     # renumber ids
     perm = { v: k for k, v in enumerate(points) }

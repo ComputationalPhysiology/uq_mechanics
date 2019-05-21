@@ -1,7 +1,7 @@
 from dolfin import *
 import numpy as np
 from MatStrainEnergyFunction2 import *
-from dolfinfiberrules import *
+from fiberrules import *
 from meshutils import *
 
 parameters.allow_extrapolation = True
@@ -77,8 +77,10 @@ class problem():
         #print  b_ff , b_xx , b_fx, CC , K , fiber_rotation_epi, fiber_rotation_endo,sheet_rotation_epi,sheet_rotation_endo,alpha_noise , beta_noise 
         
         # Define fibre orientation field
-        f0, s0, n0 = dolfin_fiberrules(mesh,VV, fiber_rotation_epi, fiber_rotation_endo,sheet_rotation_epi,sheet_rotation_endo, alpha_noise, beta_noise)
+        #f0, s0, n0 = dolfin_fiberrules(mesh,VV, fiber_rotation_epi, fiber_rotation_endo,sheet_rotation_epi,sheet_rotation_endo, alpha_noise, beta_noise)
+        f0, s0, n0 = dolfin_fiberrules(mesh,VV, fiber_rotation_epi, fiber_rotation_endo,sheet_rotation_epi,sheet_rotation_endo)
 
+        
         self.f0 = f0#Constant([1.0,0.0,0.0])
         self.s0 = s0#Constant([0.0, 1.0, 0.0])
         self.n0 = n0#Constant([0.0, 0.0, 1.0])
@@ -197,30 +199,30 @@ class problem():
             #lengthening of the Ventricle
             #dL = self.lenghtening(u)
             # total le
-            dL_endo = self.ventricle_axial_length("lv",u)
-            dL_epi = self.ventricle_axial_length("epi",u)
-            dL = self.ventwall_thickness(dL_epi,dL_endo)
+            dL_endo = 0#self.ventricle_axial_length("lv",u)
+            dL_epi = 0#self.ventricle_axial_length("epi",u)
+            dL = 0#self.ventwall_thickness(dL_epi,dL_endo)
 
 
     	    #increase in inner radius
     	    #dR_endo = self.inner_radius(u)
-            dR_endo= self.average_radius("lv",u)
+            dR_endo= 0#self.average_radius("lv",u)
      
             #increase in ext. radius
             #dR_epi = self.ext_radius(u)
-            dR_epi = self.average_radius("epi",u)
+            dR_epi = 0#self.average_radius("epi",u)
 
             # Calculate decrease thickness ventricle wall
-            dT = self.ventwall_thickness(dR_epi,dR_endo)
+            dT = 0# self.ventwall_thickness(dR_epi,dR_endo)
 
             # Calculate rotation at apex
-            dTwist = self.apex_rotation(u)
+            dTwist = 0#self.apex_rotation(u)
 
     	    # Calculate  twisting at base
             #dTwist = self.twisting_angle(u)
 
             # Calculate the wall volume
-            dWV = self.wall_volume(u)
+            dWV = 0#self.wall_volume(u)
 
             # Calculate projecton of the Second Piola-Kirchhoff stress tensor onto the fiber axis direction
             S = material.SPK_stresstensor(b_ff, b_xx, b_fx, CC, K, f0, n0, s0,u)

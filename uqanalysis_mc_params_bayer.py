@@ -36,6 +36,8 @@ print('Calling Chaospy')
 joint = cp.J(b_ff_dist,b_xx_dist,b_fx_dist,CC_dist,K_dist,fiber_rotation_epi_dist,fiber_rotation_end_dist,sheet_rotation_epi_dist,sheet_rotation_end_dist)
 
 
+print(joint)
+
 print('done with Chaospy')
 
 # Monte Carlo	
@@ -66,7 +68,7 @@ fileroot = "UQ_QMC"  + "_qmc" + str(qmc_scheme) + "_nmc"+ str(nsamples) + \
   "_pi" + str(int(pi*100)) + "_pf" + str(int(pf*100)) + "_dp" + str(int(dp*100)) +\
   "_sp" + str(int(len(joint))) +"_allqoi"
 
-qoi_names = np.array(["dVol", "dLen","dLep","dL", "dRen", "dRep", "dThi", "dTwi","dWV"]).T
+qoi_names = np.array(["dVol"])#, "dLen","dLep","dL", "dRen", "dRep", "dThi", "dTwi","dWV"]).T
 
 
 txt_filename = str(fileroot) + "_qoi.txt"
@@ -121,7 +123,7 @@ for s in samples.T:
             txt_file.write("--------------------------------- \n")
             txt_file.write("\n")
             txt_file.write("Initial Values: \n" )
-            np.savetxt(txt_file,  np.column_stack((qoi_names, np.array(qoi_mc[0:9]).T.astype(np.object))) , fmt=['%s','%.8f'], delimiter =  "  ")
+            #np.savetxt(txt_file,  np.column_stack((qoi_names, np.array(qoi_mc[0:9]).T.astype(np.object))) , fmt=['%s','%.8f'], delimiter =  "  ")
             txt_file.write("\n")
             txt_file.write("\n")
 
@@ -132,7 +134,7 @@ for s in samples.T:
             model.update_params(*newsample.T[0])
             nnan = nnan + 1
 
-        pressure = pi
+        #pressure = pi
         qoi_mc = model.run(pressure)
 
         pressure = pressure + dp

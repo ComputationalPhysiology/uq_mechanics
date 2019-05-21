@@ -128,162 +128,162 @@ class KLE:
         return
 
 
-def _BuildMassMatrix(self):
-    u = TrialFunction(self.V)
-    v = TestFunction(self.V)
+    def _BuildMassMatrix(self):
+        u = TrialFunction(self.V)
+        v = TestFunction(self.V)
 
-    m = u * v * dx
-    ##M = uBLASSparseMatrix()
-    M = PETScMatrix()
-    assemble(m, tensor=M)
+        m = u * v * dx
+        ##M = uBLASSparseMatrix()
+        M = PETScMatrix()
+        assemble(m, tensor=M)
 
-    # Convert into
-    test = M.mat()
-    row, col, data = test.getValuesCSR()
+        # Convert into
+        test = M.mat()
+        row, col, data = test.getValuesCSR()
 
-    ##(row, col, data) = M.data()   # get sparse data
-    col = np.intc(col)
-    row = np.intc(row)
-    n = M.size(0)
-    self.M = sp_sparse.csc_matrix((data, col, row), shape=(n, n), dtype='d')
-    # M_scipy = sp_sparse.csc_matrix((data,col,row),shape=(n,n),dtype =np.float)
-    # self.M = M_scipy
-    return
-
-
-def _RandomizedGHEP(self, k, p=20, twopass=False):
-    from eigen import RandomizedGHEP as GHEP
-    verbose = self.verbose
-
-    Qt = _MQM(self.Q, self.M)
-    Mt = _Mass(self.M)
-    qm = _QM(self.Q, self.M)
-
-    l, v = GHEP(Qt, Mt, k=k, p=p, twopass=twopass, \
-                verbose=verbose, BinvA=qm, error=False)
-    if verbose:
-        print("Ax %d, Bx %d, B^{-1}x %d" %(Qt.mvcount, Mt.mvcount, Mt.scount))
-
-    return l, v
+        ##(row, col, data) = M.data()   # get sparse data
+        col = np.intc(col)
+        row = np.intc(row)
+        n = M.size(0)
+        self.M = sp_sparse.csc_matrix((data, col, row), shape=(n, n), dtype='d')
+        # M_scipy = sp_sparse.csc_matrix((data,col,row),shape=(n,n),dtype =np.float)
+        # self.M = M_scipy
+        return
 
 
-def _arpack(self, k):
-    Qt = _MQM(self.Q, self.M)
-    Mt = _Mass(self.M)
-    Minv = _MassInv(self.M)
+    def _RandomizedGHEP(self, k, p=20, twopass=False):
+        from eigen import RandomizedGHEP as GHEP
+        verbose = self.verbose
 
-    verbose = self.verbose
-    l, v = eigsh(aslinearoperator(Qt), M=aslinearoperator(Mt), \
-                 k=k, which='LM', Minv=aslinearoperator(Minv))
+        Qt = _MQM(self.Q, self.M)
+        Mt = _Mass(self.M)
+        qm = _QM(self.Q, self.M)
 
-    l = l[::-1]
-    v = v[:, ::-1]
+        l, v = GHEP(Qt, Mt, k=k, p=p, twopass=twopass, \
+                    verbose=verbose, BinvA=qm, error=False)
+        if verbose:
+            print("Ax %d, Bx %d, B^{-1}x %d" %(Qt.mvcount, Mt.mvcount, Mt.scount))
 
-    if verbose:
-        print("Ax %d, Bx %d, B^{-1}x %d" % (Qt.mvcount, Mt.mvcount, Minv.mvcount))
-    return l, v
-
-
-def compute_eigendecomposition(self, k, method='Arpack', params={}):
-    """
-    Computes the k largest modes of the KLE
-
-    Parameters:
-    ------------
-    k:	int
-        Number of eigenmodes
-
-    method:	string, optional
-        Method to compute eigendecomposition.
-        Options are either 'Arpack' [1,2] (default) or 'Randomized' [3]
-
-    params:	dict, optional
-        Parameters to control accuracy of randomized eigendecomposition
-        keys: 'p' (int) is the oversampling factor and
-        'twopass' (bool) determines whether to use
-        two-pass (more accurate but expensive) or one-pass
-        (less accurate and less expensive) [3].
+        return l, v
 
 
-    Returns:
-    ---------
+    def _arpack(self, k):
+        Qt = _MQM(self.Q, self.M)
+        Mt = _Mass(self.M)
+        Minv = _MassInv(self.M)
 
-    l:	(k,) ndarray
-        Contains the eigenvalues in descending order
+        verbose = self.verbose
+        l, v = eigsh(aslinearoperator(Qt), M=aslinearoperator(Mt), \
+                     k=k, which='LM', Minv=aslinearoperator(Minv))
 
-    v:	(N,k) ndarray
-        Contains the corresponding eigenvectors.
-        N is the number of grid points.
+        l = l[::-1]
+        v = v[:, ::-1]
 
-
-    Raises:
-    -------
-    NotImplementedError
-        When the right parameter for 'method' is not used
-
-    References
-        ----------
-        .. [1] ARPACK Software, http://www.caam.rice.edu/software/ARPACK/
-       .. [2] R. B. Lehoucq, D. C. Sorensen, and C. Yang,  ARPACK USERS GUIDE:
-               Solution of Large Scale Eigenvalue Problems by
-         Implicitly Restarted Arnoldi Methods.
-        SIAM, Philadelphia, PA, 1998.
-    .. [3] A.K. Saibaba and P.K. Kitanidis:
-        Randomized square-root free algorithms for
-            generalized Hermitian eigenvalue problems.
-        Preprint http://arxiv.org/abs/1307.6885
-
-    """
-
-    start = time()
-    if method == 'Arpack':
-        l, v = self._arpack(k)
-    elif method == 'Randomized':
-
-        twopass = 'True' if 'twopass' not in params else \
-            params['twopass']
-        p = 20 if 'p' not in params else params['p']
-        l, v = self._RandomizedGHEP(k, p, twopass)
-
-    else:
-
-        raise NotImplementedError
-
-    verbose = self.verbose
-    if verbose:
-        print("Time taken for computing eigendecomposition is %g" % (time() - start))
-
-    self.l, self.v = l, v
-    print(l)
-    return(l, v)
+        if verbose:
+            print("Ax %d, Bx %d, B^{-1}x %d" % (Qt.mvcount, Mt.mvcount, Minv.mvcount))
+        return l, v
 
 
-def realizations(self, eps):
-    """
-    Generates a realization from the KLE assuming a Gaussian process
+    def compute_eigendecomposition(self, k, method='Arpack', params={}):
+        """
+        Computes the k largest modes of the KLE
+
+        Parameters:
+        ------------
+        k:	int
+            Number of eigenmodes
+
+        method:	string, optional
+            Method to compute eigendecomposition.
+            Options are either 'Arpack' [1,2] (default) or 'Randomized' [3]
+
+        params:	dict, optional
+            Parameters to control accuracy of randomized eigendecomposition
+            keys: 'p' (int) is the oversampling factor and
+            'twopass' (bool) determines whether to use
+            two-pass (more accurate but expensive) or one-pass
+            (less accurate and less expensive) [3].
 
 
-    Returns:
-    --------
-    v:	(N,) ndarray
-        Realization of the gaussian process
+        Returns:
+        ---------
 
-    """
-    ##import chaospy as cp
-    k = self.l.shape[0]
-    ##joint = cp.J(cp.Normal(0,1),cp.Normal(0,1), cp.Normal(0,1),cp.Normal(0,1))
-    # eps = joint.sample(1).T.reshape(4,)
+        l:	(k,) ndarray
+            Contains the eigenvalues in descending order
 
-    #  eps = np.random.randn(k)
-    # eps = np.random.normal(0,9,k)
+        v:	(N,k) ndarray
+            Contains the corresponding eigenvectors.
+            N is the number of grid points.
 
-    # [x,y), rand*(y-x) + x
-    # eps = np.random.randn(k)*(y-x) + x
-    # eps = np.random.normal(x,y,k)
 
-    l, v = self.l, self.v
+        Raises:
+        -------
+        NotImplementedError
+            When the right parameter for 'method' is not used
 
-    return np.sum(np.dot(v, np.diag(np.sqrt(l) * eps)), axis=1)
+        References
+            ----------
+            .. [1] ARPACK Software, http://www.caam.rice.edu/software/ARPACK/
+           .. [2] R. B. Lehoucq, D. C. Sorensen, and C. Yang,  ARPACK USERS GUIDE:
+                   Solution of Large Scale Eigenvalue Problems by
+             Implicitly Restarted Arnoldi Methods.
+            SIAM, Philadelphia, PA, 1998.
+        .. [3] A.K. Saibaba and P.K. Kitanidis:
+            Randomized square-root free algorithms for
+                generalized Hermitian eigenvalue problems.
+            Preprint http://arxiv.org/abs/1307.6885
+
+        """
+
+        start = time()
+        if method == 'Arpack':
+            l, v = self._arpack(k)
+        elif method == 'Randomized':
+
+            twopass = 'True' if 'twopass' not in params else \
+                params['twopass']
+            p = 20 if 'p' not in params else params['p']
+            l, v = self._RandomizedGHEP(k, p, twopass)
+
+        else:
+
+            raise NotImplementedError
+
+        verbose = self.verbose
+        if verbose:
+            print("Time taken for computing eigendecomposition is %g" % (time() - start))
+
+        self.l, self.v = l, v
+        print(l)
+        return(l, v)
+
+
+    def realizations(self, eps):
+        """
+        Generates a realization from the KLE assuming a Gaussian process
+
+
+        Returns:
+        --------
+        v:	(N,) ndarray
+            Realization of the gaussian process
+
+        """
+        ##import chaospy as cp
+        k = self.l.shape[0]
+        ##joint = cp.J(cp.Normal(0,1),cp.Normal(0,1), cp.Normal(0,1),cp.Normal(0,1))
+        # eps = joint.sample(1).T.reshape(4,)
+
+        #  eps = np.random.randn(k)
+        # eps = np.random.normal(0,9,k)
+
+        # [x,y), rand*(y-x) + x
+        # eps = np.random.randn(k)*(y-x) + x
+        # eps = np.random.normal(x,y,k)
+
+        l, v = self.l, self.v
+
+        return np.sum(np.dot(v, np.diag(np.sqrt(l) * eps)), axis=1)
 
 
 class _MQM:

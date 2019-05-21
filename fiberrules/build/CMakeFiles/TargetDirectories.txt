@@ -1,3 +1,0 @@
-/home/rocio/Desktop/fiberrules/build/fiberrules/swig/CMakeFiles/_cpp.dir
-/home/rocio/Desktop/fiberrules/build/fiberrules/CMakeFiles/fiberrules.dir
-/home/rocio/Desktop/fiberrules/build/CMakeFiles/uninstall.dir

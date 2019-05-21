@@ -1,4 +1,4 @@
-##Code for uncertainty quantification in cardiac mechanics, based on Chaospy and a simplified version of Pulse
+## Code for uncertainty quantification in cardiac mechanics, based on Chaospy and a simplified version of Pulse
 
 ### References:
 
